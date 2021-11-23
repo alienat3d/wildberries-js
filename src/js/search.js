@@ -9,8 +9,8 @@ const search = function () {
   //   console.log(event.target.value);
   // });
 
-  searchBtn.addEventListener("click", (event) => {
-    console.log(event.target.value);
+  searchBtn.addEventListener("click", () => {
+    console.log(input.value);
   });
 };
 
