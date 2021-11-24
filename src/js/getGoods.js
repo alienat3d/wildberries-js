@@ -1,11 +1,45 @@
-// Другой менее коротки вариант с пояснениями см. learn-js/getGoods.js
+// Другой менее короткий вариант с пояснениями см. learn-js/getGoods.js
 const getGoods = () => {
-  // Для того чтобы доставать данные из базы данных по клику на ссылках меню header, сперва
   const links = document.querySelectorAll('.navigation-link');
 
-  // Отрисовываем карточки товаров.
+  // Чтобы отрисовать карточки товаров, нам сперва нужно получить класс всех карточек и поместить их в переменную "goodsContainer".
   const renderGoods = (goods) => {
-    console.log(goods);
+    const goodsContainer = document.querySelector('.long-goods-list');
+
+    // Почистим содержимое HTML.
+    goodsContainer.innerHTML = '';
+
+    // Теперь перебираем весь массив элементов и каждый раз создаём новый блок, добавлять классы и в этот блок записывать вёрстку.
+    goods.forEach((good) => {
+      // Создаём новый блок, для этого обращаемся к document и используем createElement.
+      const goodBlock = document.createElement('div');
+
+      // Добавляем ему классы, которые есть у каждой карточки товара.
+      goodBlock.classList.add('col-lg-3');
+      goodBlock.classList.add('col-sm-6');
+
+      // Обратите внимание на специальные ковычки. Вставляем вёрстку каждой карточки товара.
+      // Заполняем вёрстку при помощи свойств JavaScript.
+      // Обратите внимание на реализацию label - мы показываем его только, на определённых товарах.
+      goodBlock.innerHTML = `
+        <div class="goods-card">
+          <span class="label ${good.label ? null : 'd-none'}">${
+        good.label
+      }</span>
+          <img src="db/${good.img}" alt="${good.name}" class="goods-image">
+          <h3 class="goods-title">${good.name}</h3>
+          <p class="goods-description">${good.description}</p>
+          <button class="button goods-card-btn add-to-cart" data-id="${
+            good.id
+          }">
+            <span class="button-price">$ ${good.price}</span>
+          </button>
+        </div>
+      `;
+
+      // В каждом переборе мы используем метод 'append', который будет добавлять в конце списка дочерних элементов очередной 'goodBlock'.
+      goodsContainer.append(goodBlock);
+    });
   };
 
   const getData = (value, category) => {
@@ -14,32 +48,13 @@ const getGoods = () => {
     )
       .then((res) => res.json())
       .then((data) => {
-        // Метод "filter" очень похож на "forEach", он перебирает данные и возвращает только те данные, callback которых вернёт нам значение true.
-        // Тут мы проверяем item.gender и сравниваем со значением "Womens". Т.е. в массив попадут только элементы у которых gender - "Womens".
-
-        // К свойсту объектов можно обращаться как через точечную нотацию 'return item.gender === "Mens";', так и через скобки.
-        // return item['gender'] === "Mens"; - но вместо "gender" и "Mens", мы можем использовать вышеозначенные "value" и "category".
-        // В итоге упрощаем код, использую стрелочную функцию, теперь фигурн. скобки и return не нужны.
-
-        // const array = data.filter((item) => item[category] === value);
         const array = category
           ? data.filter((item) => item[category] === value)
           : data;
 
-        // А теперь пропишем цикл для All. Если категория есть, то выводим отфильтрованные данные, а если нет, то полные данные.
-        // if (category) {
-        //   console.log('есть');
-        // } else {
-        //   console.log('нет');
-        // }
-        // Такое же условие можно показать через тернарный оператор:
-        // category ? console.log('есть') : console.log('нет');
-
         localStorage.setItem('goods', JSON.stringify(array));
 
-        // Переводим юзера на страницу с товарами:
-        // window.location.href = 'goods.html';
-        if (window.location.pathname !== '/goods.html') {
+        if (window.location.pathname !== '/src/goods.html') {
           window.location.href = '/src/goods.html';
         } else {
           renderGoods(array);
@@ -47,38 +62,22 @@ const getGoods = () => {
       });
   };
 
-  // Метод "forEach" аргументом принимает функцию и запустит для каждого итерируемого элемента нашего массива. Метод принимает никий callback и в этот callback при вызове функции попадают несколько параментров. Первый из которых это link, то есть первый итерируемый элемент нашего массива.
   links.forEach((link) => {
-    // теперь на каждый линк повесим обработчик события "click".
     link.addEventListener('click', (event) => {
-      // Методом "preventDefault" убираем переходы по клику на ссылках
       event.preventDefault();
-      // Чтобы достать текстовое содержимое применяем "textContent"
       const linkValue = link.textContent;
-      // "dataset.field" используем для получения значения аттрибута "data-field"
       const category = link.dataset.field;
 
       getData(linkValue, category);
     });
   });
 
-  // Нужно сделать так, чтобы отправлялось на рендер, только если страничка goods.html, а index.html нет. Для этого ставим логический знак && и проверяем, что мы действительно на 'goods.html'.
   if (
     localStorage.getItem('goods') &&
-    window.location.pathname === '/goods.html'
+    window.location.pathname === '/src/goods.html'
   ) {
     renderGoods(JSON.parse(localStorage.getItem('goods')));
   }
-  // Обратимся к глобальному объекту "localStorage". Используем медот "setItem" для записи. В нём используем ключ "goods" и значение "name: "all"", но так как можно использовать только строки, то сперва переводим объект при помощи метода stringify из JSON файла.
-  // localStorage.setItem('goods', JSON.stringify([1, 2, 3, 4, 5]));
-
-  // "getItem" метод считывания информации из localStorage.
-  // const goods = JSON.parse(localStorage.getItem('goods'));
-  // console.log(localStorage);
-
-  // "removeItem" метод удаления информации из localStorage.
-  // localStorage.removeItem('goods');
-  // console.log(localStorage);
 };
 
 getGoods();
