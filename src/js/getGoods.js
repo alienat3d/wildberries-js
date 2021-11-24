@@ -1,6 +1,7 @@
 // Другой менее короткий вариант с пояснениями см. learn-js/getGoods.js
 const getGoods = () => {
   const links = document.querySelectorAll('.navigation-link');
+  const more = document.querySelector('.more');
 
   // Чтобы отрисовать карточки товаров, нам сперва нужно получить класс всех карточек и поместить их в переменную "goodsContainer".
   const renderGoods = (goods) => {
@@ -51,9 +52,7 @@ const getGoods = () => {
         const array = category
           ? data.filter((item) => item[category] === value)
           : data;
-
         localStorage.setItem('goods', JSON.stringify(array));
-
         if (window.location.pathname !== '/src/goods.html') {
           window.location.href = '/src/goods.html';
         } else {
@@ -61,7 +60,6 @@ const getGoods = () => {
         }
       });
   };
-
   links.forEach((link) => {
     link.addEventListener('click', (event) => {
       event.preventDefault();
@@ -77,6 +75,15 @@ const getGoods = () => {
     window.location.pathname === '/src/goods.html'
   ) {
     renderGoods(JSON.parse(localStorage.getItem('goods')));
+  }
+
+  // Делаем, чтобы по клику на элемент с классом ".more" переносило на "goods.html" с фильтром "all".
+  // Равнозначно такой проверке "if ( more === true )"
+  if (more) {
+    more.addEventListener('click', () => {
+      event.preventDefault();
+      getData();
+    });
   }
 };
 
